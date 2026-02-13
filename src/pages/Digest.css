@@ -176,6 +176,80 @@
   flex-wrap: wrap;
 }
 
+.digest-status-updates {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: white;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.digest-status-updates-title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-heading-md);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.digest-status-updates-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.digest-status-update-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-sm);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.digest-status-update-item:last-child {
+  border-bottom: none;
+}
+
+.digest-status-update-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.digest-status-update-job {
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+}
+
+.digest-status-update-status {
+  font-size: var(--font-size-body-sm);
+  color: rgba(17, 17, 17, 0.7);
+}
+
+.status-not-applied {
+  color: rgba(17, 17, 17, 0.7);
+}
+
+.status-applied {
+  color: #0064c8;
+}
+
+.status-rejected {
+  color: var(--color-accent);
+}
+
+.status-selected {
+  color: var(--color-success);
+}
+
+.digest-status-update-date {
+  font-size: var(--font-size-body-sm);
+  color: rgba(17, 17, 17, 0.6);
+  white-space: nowrap;
+  margin-left: var(--spacing-md);
+}
+
 @media (max-width: 768px) {
   .digest-job-item {
     flex-direction: column;
@@ -196,5 +270,14 @@
 
   .digest-actions .btn {
     width: 100%;
+  }
+
+  .digest-status-update-item {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .digest-status-update-date {
+    margin-left: 0;
   }
 }

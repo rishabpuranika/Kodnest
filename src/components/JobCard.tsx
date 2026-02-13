@@ -1,6 +1,7 @@
 import React from 'react';
 import { Job } from '../data/jobs';
-import { Badge, Button, MatchScoreBadge } from './';
+import { Badge, Button, MatchScoreBadge, JobStatusButtons } from './';
+import { JobStatus, getJobStatus } from '../utils/status';
 import './JobCard.css';
 
 interface JobCardProps {
@@ -9,11 +10,24 @@ interface JobCardProps {
   onSave: (jobId: string) => void;
   isSaved: boolean;
   matchScore?: number;
+  onStatusChange?: (jobId: string, status: JobStatus) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onView, onSave, isSaved, matchScore }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onView, onSave, isSaved, matchScore, onStatusChange }) => {
+  const [status, setStatus] = React.useState<JobStatus>(getJobStatus(job.id));
+
+  React.useEffect(() => {
+    // Sync status with localStorage on mount and when job changes
+    setStatus(getJobStatus(job.id));
+  }, [job.id]);
+
   const handleApply = () => {
     window.open(job.applyUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleStatusChange = (newStatus: JobStatus) => {
+    setStatus(newStatus);
+    onStatusChange?.(job.id, newStatus);
   };
 
   const getPostedText = (days: number) => {
@@ -56,6 +70,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onView, onSave, isSaved, 
           <span className="job-card-label">Salary:</span>
           <span className="job-card-value">{job.salaryRange}</span>
         </div>
+      </div>
+
+      <div className="job-card-status-section">
+        <JobStatusButtons status={status} onChange={handleStatusChange} />
       </div>
 
       <div className="job-card-footer">

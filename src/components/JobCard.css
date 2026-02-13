@@ -69,6 +69,12 @@
   color: var(--color-text-primary);
 }
 
+.job-card-status-section {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-width) solid var(--border-color);
+}
+
 .job-card-footer {
   display: flex;
   justify-content: space-between;

@@ -1,21 +1,24 @@
 import React, { useState, useMemo } from 'react';
-import { JobCard, JobModal, EmptyState } from '../components';
+import { JobCard, JobModal, EmptyState, Toast } from '../components';
 import { jobs, Job } from '../data/jobs';
 import { getSavedJobs, saveJob, removeJob, isJobSaved } from '../utils/storage';
 import { getPreferences, hasPreferences } from '../utils/preferences';
 import { calculateMatchScore } from '../utils/matchScore';
+import { JobStatus, setJobStatus, getJobStatus } from '../utils/status';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<string[]>(getSavedJobs());
   const [showOnlyMatches, setShowOnlyMatches] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     keyword: '',
     location: '',
     mode: '',
     experience: '',
     source: '',
+    status: '',
     sort: 'latest',
   });
 
@@ -35,6 +38,12 @@ export const Dashboard: React.FC = () => {
       saveJob(jobId);
       setSavedJobIds((prev) => [...prev, jobId]);
     }
+  };
+
+  const handleStatusChange = (jobId: string, status: JobStatus) => {
+    setJobStatus(jobId, status);
+    setToastMessage(`Status updated: ${status}`);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   // Calculate match scores for all jobs
@@ -78,6 +87,14 @@ export const Dashboard: React.FC = () => {
     // Source filter
     if (filters.source) {
       filtered = filtered.filter(({ job }) => job.source === filters.source);
+    }
+
+    // Status filter
+    if (filters.status) {
+      filtered = filtered.filter(({ job }) => {
+        const jobStatus = getJobStatus(job.id);
+        return jobStatus === filters.status;
+      });
     }
 
     // Show only matches toggle
@@ -217,6 +234,22 @@ export const Dashboard: React.FC = () => {
           <div className="filter-group">
             <select
               className="input filter-select"
+              value={filters.status}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
+            >
+              <option value="">All Status</option>
+              <option value="Not Applied">Not Applied</option>
+              <option value="Applied">Applied</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Selected">Selected</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <select
+              className="input filter-select"
               value={filters.sort}
               onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
             >
@@ -243,6 +276,7 @@ export const Dashboard: React.FC = () => {
                 onSave={handleSave}
                 isSaved={isJobSaved(job.id)}
                 matchScore={userHasPreferences ? matchScore : undefined}
+                onStatusChange={handleStatusChange}
               />
             ))}
           </div>
@@ -255,6 +289,13 @@ export const Dashboard: React.FC = () => {
           onClose={() => setSelectedJob(null)}
           onSave={handleSave}
           isSaved={isJobSaved(selectedJob.id)}
+        />
+      )}
+
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
         />
       )}
     </div>

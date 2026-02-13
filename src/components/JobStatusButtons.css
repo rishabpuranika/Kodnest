@@ -1,0 +1,52 @@
+/* Job Status Buttons Styles */
+
+.job-status-buttons {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.job-status-button {
+  padding: 4px var(--spacing-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: white;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.job-status-button:hover {
+  background-color: rgba(17, 17, 17, 0.04);
+}
+
+.job-status-button.active {
+  font-weight: var(--font-weight-semibold);
+}
+
+.job-status-button.active.not-applied {
+  background-color: rgba(17, 17, 17, 0.06);
+  border-color: rgba(17, 17, 17, 0.2);
+  color: var(--color-text-primary);
+}
+
+.job-status-button.active.applied {
+  background-color: rgba(0, 100, 200, 0.1);
+  border-color: rgba(0, 100, 200, 0.3);
+  color: #0064c8;
+}
+
+.job-status-button.active.rejected {
+  background-color: rgba(139, 0, 0, 0.1);
+  border-color: rgba(139, 0, 0, 0.3);
+  color: var(--color-accent);
+}
+
+.job-status-button.active.selected {
+  background-color: rgba(74, 102, 65, 0.1);
+  border-color: rgba(74, 102, 65, 0.3);
+  color: var(--color-success);
+}

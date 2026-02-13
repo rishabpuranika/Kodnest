@@ -3,15 +3,25 @@ import { Button, EmptyState, MatchScoreBadge } from '../components';
 import { jobs } from '../data/jobs';
 import { getPreferences, hasPreferences } from '../utils/preferences';
 import { generateDigest, getTodayDigest, saveDigest, formatDigestForText, Digest as DigestData } from '../utils/digest';
+import { getRecentStatusUpdates } from '../utils/status';
 import './Digest.css';
 
 export const Digest: React.FC = () => {
   const [digest, setDigest] = useState<DigestData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [statusUpdates, setStatusUpdates] = useState(getRecentStatusUpdates(10));
 
   const preferences = getPreferences();
   const userHasPreferences = hasPreferences();
+
+  useEffect(() => {
+    // Refresh status updates periodically
+    const interval = setInterval(() => {
+      setStatusUpdates(getRecentStatusUpdates(10));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Load existing digest for today
@@ -203,6 +213,40 @@ export const Digest: React.FC = () => {
             Regenerate Digest
           </Button>
         </div>
+
+        {statusUpdates.length > 0 && (
+          <div className="digest-status-updates">
+            <h3 className="digest-status-updates-title">Recent Status Updates</h3>
+            <div className="digest-status-updates-list">
+              {statusUpdates.map((update, index) => {
+                const job = jobs.find((j) => j.id === update.jobId);
+                if (!job) return null;
+
+                const updateDate = new Date(update.updatedAt);
+                const formattedDate = updateDate.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+
+                return (
+                  <div key={`${update.jobId}-${update.updatedAt}-${index}`} className="digest-status-update-item">
+                    <div className="digest-status-update-content">
+                      <div className="digest-status-update-job">
+                        <strong>{job.title}</strong> at {job.company}
+                      </div>
+                      <div className="digest-status-update-status">
+                        Status: <span className={`status-${update.status.toLowerCase().replace(' ', '-')}`}>{update.status}</span>
+                      </div>
+                    </div>
+                    <div className="digest-status-update-date">{formattedDate}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

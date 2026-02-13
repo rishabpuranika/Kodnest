@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { JobCard, JobModal, EmptyState } from '../components';
+import { JobCard, JobModal, EmptyState, Toast } from '../components';
 import { jobs, Job } from '../data/jobs';
 import { getSavedJobs, saveJob, removeJob, isJobSaved } from '../utils/storage';
+import { JobStatus, setJobStatus } from '../utils/status';
 import './Saved.css';
 
 export const Saved: React.FC = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<string[]>(getSavedJobs());
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setSavedJobIds(getSavedJobs());
@@ -22,6 +24,12 @@ export const Saved: React.FC = () => {
       saveJob(jobId);
       setSavedJobIds((prev) => [...prev, jobId]);
     }
+  };
+
+  const handleStatusChange = (jobId: string, status: JobStatus) => {
+    setJobStatus(jobId, status);
+    setToastMessage(`Status updated: ${status}`);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   if (savedJobs.length === 0) {
@@ -53,6 +61,7 @@ export const Saved: React.FC = () => {
               onView={setSelectedJob}
               onSave={handleSave}
               isSaved={isJobSaved(job.id)}
+              onStatusChange={handleStatusChange}
             />
           ))}
         </div>
@@ -64,6 +73,13 @@ export const Saved: React.FC = () => {
           onClose={() => setSelectedJob(null)}
           onSave={handleSave}
           isSaved={isJobSaved(selectedJob.id)}
+        />
+      )}
+
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
         />
       )}
     </div>
