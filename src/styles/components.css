@@ -78,6 +78,10 @@
   cursor: not-allowed;
 }
 
+.input-error {
+  border-color: var(--color-accent);
+}
+
 /* Textarea */
 .textarea {
   width: 100%;
