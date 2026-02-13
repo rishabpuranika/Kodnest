@@ -1,6 +1,6 @@
 import React from 'react';
 import { Job } from '../data/jobs';
-import { Badge, Button } from './';
+import { Badge, Button, MatchScoreBadge } from './';
 import './JobCard.css';
 
 interface JobCardProps {
@@ -8,9 +8,10 @@ interface JobCardProps {
   onView: (job: Job) => void;
   onSave: (jobId: string) => void;
   isSaved: boolean;
+  matchScore?: number;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onView, onSave, isSaved }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onView, onSave, isSaved, matchScore }) => {
   const handleApply = () => {
     window.open(job.applyUrl, '_blank', 'noopener,noreferrer');
   };
@@ -28,9 +29,12 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onView, onSave, isSaved }
           <h3 className="job-card-title">{job.title}</h3>
           <p className="job-card-company">{job.company}</p>
         </div>
-        <Badge variant={job.source === 'LinkedIn' ? 'accent' : job.source === 'Naukri' ? 'success' : 'warning'}>
-          {job.source}
-        </Badge>
+        <div className="job-card-badges">
+          {matchScore !== undefined && <MatchScoreBadge score={matchScore} />}
+          <Badge variant={job.source === 'LinkedIn' ? 'accent' : job.source === 'Naukri' ? 'success' : 'warning'}>
+            {job.source}
+          </Badge>
+        </div>
       </div>
 
       <div className="job-card-details">

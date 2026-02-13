@@ -2,11 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { JobCard, JobModal, EmptyState } from '../components';
 import { jobs, Job } from '../data/jobs';
 import { getSavedJobs, saveJob, removeJob, isJobSaved } from '../utils/storage';
+import { getPreferences, hasPreferences } from '../utils/preferences';
+import { calculateMatchScore } from '../utils/matchScore';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<string[]>(getSavedJobs());
+  const [showOnlyMatches, setShowOnlyMatches] = useState(false);
   const [filters, setFilters] = useState({
     keyword: '',
     location: '',
@@ -15,6 +18,9 @@ export const Dashboard: React.FC = () => {
     source: '',
     sort: 'latest',
   });
+
+  const preferences = getPreferences();
+  const userHasPreferences = hasPreferences();
 
   const locations = useMemo(() => {
     const unique = Array.from(new Set(jobs.map((job) => job.location)));
@@ -31,14 +37,22 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  // Calculate match scores for all jobs
+  const jobsWithScores = useMemo(() => {
+    return jobs.map((job) => ({
+      job,
+      matchScore: calculateMatchScore(job, preferences),
+    }));
+  }, [preferences]);
+
   const filteredJobs = useMemo(() => {
-    let filtered = [...jobs];
+    let filtered = [...jobsWithScores];
 
     // Keyword search
     if (filters.keyword) {
       const keyword = filters.keyword.toLowerCase();
       filtered = filtered.filter(
-        (job) =>
+        ({ job }) =>
           job.title.toLowerCase().includes(keyword) ||
           job.company.toLowerCase().includes(keyword)
       );
@@ -46,33 +60,53 @@ export const Dashboard: React.FC = () => {
 
     // Location filter
     if (filters.location) {
-      filtered = filtered.filter((job) => job.location === filters.location);
+      filtered = filtered.filter(({ job }) => job.location === filters.location);
     }
 
     // Mode filter
     if (filters.mode) {
-      filtered = filtered.filter((job) => job.mode === filters.mode);
+      filtered = filtered.filter(({ job }) => job.mode === filters.mode);
     }
 
     // Experience filter
     if (filters.experience) {
-      filtered = filtered.filter((job) => job.experience === filters.experience);
+      filtered = filtered.filter(
+        ({ job }) => job.experience === filters.experience
+      );
     }
 
     // Source filter
     if (filters.source) {
-      filtered = filtered.filter((job) => job.source === filters.source);
+      filtered = filtered.filter(({ job }) => job.source === filters.source);
+    }
+
+    // Show only matches toggle
+    if (showOnlyMatches && userHasPreferences) {
+      filtered = filtered.filter(
+        ({ matchScore }) => matchScore >= preferences.minMatchScore
+      );
     }
 
     // Sort
     if (filters.sort === 'latest') {
-      filtered.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
+      filtered.sort((a, b) => a.job.postedDaysAgo - b.job.postedDaysAgo);
     } else if (filters.sort === 'oldest') {
-      filtered.sort((a, b) => b.postedDaysAgo - a.postedDaysAgo);
+      filtered.sort((a, b) => b.job.postedDaysAgo - a.job.postedDaysAgo);
+    } else if (filters.sort === 'matchScore') {
+      filtered.sort((a, b) => b.matchScore - a.matchScore);
+    } else if (filters.sort === 'salary') {
+      filtered.sort((a, b) => {
+        const extractSalary = (salaryRange: string): number => {
+          // Extract first number from salary range (e.g., "3–5 LPA" -> 3, "₹15k–₹40k/month" -> 15)
+          const match = salaryRange.match(/(\d+)/);
+          return match ? parseInt(match[1], 10) : 0;
+        };
+        return extractSalary(b.job.salaryRange) - extractSalary(a.job.salaryRange);
+      });
     }
 
     return filtered;
-  }, [filters]);
+  }, [filters, showOnlyMatches, preferences, jobsWithScores, userHasPreferences]);
 
   return (
     <div className="dashboard">
@@ -83,6 +117,28 @@ export const Dashboard: React.FC = () => {
             Browse and discover job opportunities
           </p>
         </div>
+
+        {!userHasPreferences && (
+          <div className="dashboard-banner">
+            <p>
+              Set your preferences to activate intelligent matching.{' '}
+              <a href="/settings">Go to Settings</a>
+            </p>
+          </div>
+        )}
+
+        {userHasPreferences && (
+          <div className="dashboard-toggle">
+            <label className="dashboard-toggle-label">
+              <input
+                type="checkbox"
+                checked={showOnlyMatches}
+                onChange={(e) => setShowOnlyMatches(e.target.checked)}
+              />
+              <span>Show only jobs above my threshold ({preferences.minMatchScore}%)</span>
+            </label>
+          </div>
+        )}
 
         <div className="dashboard-filters">
           <div className="filter-group">
@@ -166,24 +222,27 @@ export const Dashboard: React.FC = () => {
             >
               <option value="latest">Latest First</option>
               <option value="oldest">Oldest First</option>
+              <option value="matchScore">Match Score</option>
+              <option value="salary">Salary</option>
             </select>
           </div>
         </div>
 
         {filteredJobs.length === 0 ? (
           <EmptyState
-            title="No jobs found"
-            description="Try adjusting your filters to see more results."
+            title="No roles match your criteria"
+            description="Adjust filters or lower threshold."
           />
         ) : (
           <div className="dashboard-jobs">
-            {filteredJobs.map((job) => (
+            {filteredJobs.map(({ job, matchScore }) => (
               <JobCard
                 key={job.id}
                 job={job}
                 onView={setSelectedJob}
                 onSave={handleSave}
                 isSaved={isJobSaved(job.id)}
+                matchScore={userHasPreferences ? matchScore : undefined}
               />
             ))}
           </div>

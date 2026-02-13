@@ -154,6 +154,11 @@
   color: var(--color-accent);
 }
 
+.badge-muted {
+  background-color: rgba(17, 17, 17, 0.04);
+  color: rgba(17, 17, 17, 0.5);
+}
+
 /* Checkbox */
 .checkbox {
   display: flex;
