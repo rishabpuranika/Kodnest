@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navigation } from './components';
-import { Landing, Dashboard, Saved, Digest, Settings, Proof, NotFound } from './pages';
+import { Landing, Dashboard, Saved, Digest, Settings, Proof, Test, Ship, NotFound } from './pages';
 import './styles/design-system.css';
 import './styles/components.css';
 import './styles/layout.css';
@@ -18,6 +18,8 @@ function App() {
           <Route path="/digest" element={<Digest />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/proof" element={<Proof />} />
+          <Route path="/jt/07-test" element={<Test />} />
+          <Route path="/jt/08-ship" element={<Ship />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

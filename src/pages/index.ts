@@ -4,4 +4,6 @@ export { Saved } from './Saved';
 export { Digest } from './Digest';
 export { Settings } from './Settings';
 export { Proof } from './Proof';
+export { Test } from './Test';
+export { Ship } from './Ship';
 export { NotFound } from './NotFound';
