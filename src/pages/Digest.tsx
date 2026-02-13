@@ -1,13 +1,14 @@
 import React from 'react';
-import './PagePlaceholder.css';
+import { EmptyState } from '../components';
+import './Digest.css';
 
 export const Digest: React.FC = () => {
   return (
-    <div className="page-placeholder">
-      <h1>Digest</h1>
-      <p className="page-placeholder-subtext">
-        This section will be built in the next step.
-      </p>
+    <div className="digest">
+      <EmptyState
+        title="No digest available"
+        description="Your daily job digest will appear here once you've configured your preferences."
+      />
     </div>
   );
 };

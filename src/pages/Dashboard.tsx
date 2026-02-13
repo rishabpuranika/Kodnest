@@ -1,13 +1,14 @@
 import React from 'react';
-import './PagePlaceholder.css';
+import { EmptyState } from '../components';
+import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
   return (
-    <div className="page-placeholder">
-      <h1>Dashboard</h1>
-      <p className="page-placeholder-subtext">
-        This section will be built in the next step.
-      </p>
+    <div className="dashboard">
+      <EmptyState
+        title="No jobs yet"
+        description="In the next step, you will load a realistic dataset."
+      />
     </div>
   );
 };

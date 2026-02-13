@@ -1,7 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navigation } from './components';
-import { Dashboard, Saved, Digest, Settings, Proof, NotFound } from './pages';
+import { Landing, Dashboard, Saved, Digest, Settings, Proof, NotFound } from './pages';
 import './styles/design-system.css';
 import './styles/components.css';
 import './styles/layout.css';
@@ -12,7 +12,7 @@ function App() {
       <div className="app">
         <Navigation />
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/saved" element={<Saved />} />
           <Route path="/digest" element={<Digest />} />
