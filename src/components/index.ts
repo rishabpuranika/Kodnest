@@ -11,3 +11,5 @@ export { Textarea } from './Textarea';
 export { Badge } from './Badge';
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
+export { JobCard } from './JobCard';
+export { JobModal } from './JobModal';
